@@ -328,6 +328,7 @@ public class BitbucketServerAPIClient implements BitbucketApi {
 
     private List<BitbucketServerPullRequest> getPullRequests(UriTemplate template)
             throws IOException, InterruptedException {
+        LOGGER.log(Level.INFO, "getPullRequests({0}): ...", new Object[]{template.expand()});
         List<BitbucketServerPullRequest> pullRequests = getResources(template, BitbucketServerPullRequests.class);
 
         // PRs with missing destination branch are invalid and should be ignored.
@@ -365,6 +366,7 @@ public class BitbucketServerAPIClient implements BitbucketApi {
             }
         }
 
+        LOGGER.log(Level.INFO, "getPullRequests({0}): DONE", new Object[]{template.expand()});
         return pullRequests;
     }
 
@@ -843,6 +845,8 @@ public class BitbucketServerAPIClient implements BitbucketApi {
             authenticator.configureRequest(httpget);
         }
 
+        LOGGER.log(Level.INFO, "HTTP getRequest({0}): ...", new Object[]{path});
+
         try(CloseableHttpClient client = getHttpClient(httpget);
                 CloseableHttpResponse response = client.execute(httpget, context)) {
             String content;
@@ -876,6 +880,7 @@ public class BitbucketServerAPIClient implements BitbucketApi {
         } catch (IOException e) {
             throw new IOException("Communication error for url: " + path, e);
         } finally {
+            LOGGER.log(Level.INFO, "HTTP getRequest({0}): DONE", new Object[]{path});
             httpget.releaseConnection();
         }
     }
@@ -885,6 +890,8 @@ public class BitbucketServerAPIClient implements BitbucketApi {
         if (authenticator != null) {
             authenticator.configureRequest(httpget);
         }
+
+        LOGGER.log(Level.INFO, "HTTP getImageRequest({0}): ...", new Object[]{path});
 
         try (CloseableHttpClient client = getHttpClient(httpget);
                 CloseableHttpResponse response = client.execute(httpget, context)) {
@@ -917,6 +924,7 @@ public class BitbucketServerAPIClient implements BitbucketApi {
         } catch (IOException e) {
             throw new IOException("Communication error for url: " + path, e);
         } finally {
+            LOGGER.log(Level.INFO, "HTTP getImageRequest({0}): DONE", new Object[]{path});
             httpget.releaseConnection();
         }
 
@@ -1032,7 +1040,10 @@ public class BitbucketServerAPIClient implements BitbucketApi {
     }
 
     private String postRequest(HttpPost httppost) throws IOException {
-        return doRequest(httppost);
+        LOGGER.log(Level.INFO, "HTTP postRequest({0}): ...", new Object[]{httppost});
+        String result = doRequest(httppost);
+        LOGGER.log(Level.INFO, "HTTP postRequest({0}): DONE", new Object[]{httppost});
+        return result;
     }
 
     private String doRequest(HttpRequestBase request) throws IOException {
@@ -1090,12 +1101,18 @@ public class BitbucketServerAPIClient implements BitbucketApi {
     private String putRequest(String path, String content) throws IOException {
         HttpPut request = new HttpPut(this.baseURL + path);
         request.setEntity(new StringEntity(content, ContentType.create("application/json", "UTF-8")));
-        return doRequest(request);
+        LOGGER.log(Level.INFO, "HTTP putRequest({0}): ...", new Object[]{path});
+        String result = doRequest(request);
+        LOGGER.log(Level.INFO, "HTTP putRequest({0}): DONE", new Object[]{path});
+        return result;
     }
 
     private String deleteRequest(String path) throws IOException {
         HttpDelete request = new HttpDelete(this.baseURL + path);
-        return doRequest(request);
+        LOGGER.log(Level.INFO, "HTTP putRequest({0}): ...", new Object[]{path});
+        String result = doRequest(request);
+        LOGGER.log(Level.INFO, "HTTP putRequest({0}): DONE", new Object[]{path});
+        return result;
     }
 
     @Override
